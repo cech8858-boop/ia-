@@ -54,7 +54,7 @@ function makeApp(prompt: string): Project {
 function buildProject(kind: BuilderKind, prompt: string) { return kind === "website" ? makeWebsite(prompt) : kind === "game" ? makeGame(prompt) : makeApp(prompt); }
 
 function Preview({ project }: { project: Project | null }) {
-  const srcDoc = useMemo(() => project ? `${project.html.replace('</head>', `<style>${project.css}</style></head>`).replace('</body>', `<script>${project.js.replace(/<\\/script/gi, '<\\\\/script>')}</script></body>`)}` : "", [project]);
+  const srcDoc = useMemo(() => project ? `${project.html.replace('</head>', `<style>${project.css}</style></head>`).replace('</body>', `<script>${project.js.replace(/<\/script/gi, '<\\/script>')}</script></body>`)}` : "", [project]);
   if (!project) return <div className="grid min-h-[500px] place-items-center rounded-3xl border border-white/10 bg-black/30 text-sm text-white/30">L'aperçu apparaîtra ici.</div>;
   return <iframe title="AI Builder live preview" srcDoc={srcDoc} className="min-h-[560px] w-full rounded-3xl border border-white/10 bg-white" sandbox="allow-scripts" />;
 }
