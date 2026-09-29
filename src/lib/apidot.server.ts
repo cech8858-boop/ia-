@@ -2,6 +2,11 @@
 
 const API_BASE = "https://api.apidot.ai/api/generate";
 
+export const APIDOT_MODEL_IDS = {
+  nanoBanana: "nano-banana",
+  elevenLabs: "elevenlabs",
+} as const;
+
 export type ApiDotResult = { ok: boolean; status: number; body: unknown };
 
 function apiKey(): string | null {
@@ -20,23 +25,6 @@ async function parse(res: Response): Promise<ApiDotResult> {
   return { ok: res.ok, status: res.status, body };
 }
 
-async function requestApiDot(
-  url: string,
-  init: RequestInit,
-): Promise<ApiDotResult> {
-  try {
-    const response = await fetch(url, init);
-    return parse(response);
-  } catch (error) {
-    console.error("APIDot request failed", error);
-    return {
-      ok: false,
-      status: 502,
-      body: { message: "Le service externe est temporairement indisponible. Réessayez dans quelques instants." },
-    };
-  }
-}
-
 export async function submitMotionControl(payload: {
   image: string;
   video: string;
@@ -46,7 +34,7 @@ export async function submitMotionControl(payload: {
     return { ok: false, status: 500, body: { message: "API key is not configured." } };
   }
 
-  return requestApiDot(`${API_BASE}/submit`, {
+  const res = await fetch(`${API_BASE}/submit`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${key}`,
@@ -62,6 +50,22 @@ export async function submitMotionControl(payload: {
       },
     }),
   });
+
+  return parse(res);
+}
+
+export async function submitNanoBanana(
+  input: Record<string, unknown>,
+  modelId: string = APIDOT_MODEL_IDS.nanoBanana,
+): Promise<ApiDotResult> {
+  return submitGeneration(modelId, input);
+}
+
+export async function submitElevenLabs(
+  input: Record<string, unknown>,
+  modelId: string = APIDOT_MODEL_IDS.elevenLabs,
+): Promise<ApiDotResult> {
+  return submitGeneration(modelId, input);
 }
 
 /** Generic APIDot submit for any documented model id. */
@@ -74,7 +78,7 @@ export async function submitGeneration(
     return { ok: false, status: 500, body: { message: "API key is not configured." } };
   }
 
-  return requestApiDot(`${API_BASE}/submit`, {
+  const res = await fetch(`${API_BASE}/submit`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${key}`,
@@ -82,6 +86,8 @@ export async function submitGeneration(
     },
     body: JSON.stringify({ model, input }),
   });
+
+  return parse(res);
 }
 
 export async function getTaskStatus(taskId: string): Promise<ApiDotResult> {
@@ -90,9 +96,11 @@ export async function getTaskStatus(taskId: string): Promise<ApiDotResult> {
     return { ok: false, status: 500, body: { message: "API key is not configured." } };
   }
 
-  return requestApiDot(`${API_BASE}/status/${encodeURIComponent(taskId)}`, {
+  const res = await fetch(`${API_BASE}/status/${encodeURIComponent(taskId)}`, {
     headers: { Authorization: `Bearer ${key}` },
   });
+
+  return parse(res);
 }
 
 export async function getMotionControlStatus(taskId: string): Promise<ApiDotResult> {
@@ -149,6 +157,90 @@ export function extractResultVideoUrl(body: unknown): string | null {
     return null;
   };
   return walk(body);
+}
+
+export function extractResultImageUrl(body: unknown): string | null {
+  const direct = deepFind(
+    body,
+    ["image_url", "imageUrl", "output_url", "result_url", "url", "image"],
+    (value) => /^https?:\/\//.test(value),
+  );
+  if (direct) return direct;
+
+  const seen = new Set<unknown>();
+  const walk = (node: unknown): string | null => {
+    if (typeof node === "string") {
+      return /^https?:\/\/\S+/.test(node) && /\.(png|jpg|jpeg|webp|gif)(\?|$)/i.test(node) ? node : null;
+    }
+    if (!node || typeof node !== "object" || seen.has(node)) return null;
+    seen.add(node);
+    for (const value of Object.values(node as Record<string, unknown>)) {
+      const found = walk(value);
+      if (found) return found;
+    }
+    return null;
+  };
+  return walk(body);
+}
+
+export function extractResultAudioUrl(body: unknown): string | null {
+  const direct = deepFind(
+    body,
+    ["audio_url", "audioUrl", "output_url", "result_url", "url", "audio"],
+    (value) => /^https?:\/\//.test(value),
+  );
+  if (direct) return direct;
+
+  const seen = new Set<unknown>();
+  const walk = (node: unknown): string | null => {
+    if (typeof node === "string") {
+      return /^https?:\/\/\S+/.test(node) && /\.(mp3|wav|aac|ogg|m4a)(\?|$)/i.test(node) ? node : null;
+    }
+    if (!node || typeof node !== "object" || seen.has(node)) return null;
+    seen.add(node);
+    for (const value of Object.values(node as Record<string, unknown>)) {
+      const found = walk(value);
+      if (found) return found;
+    }
+    return null;
+  };
+  return walk(body);
+}
+
+export function extractMediaUrl(
+  body: unknown,
+  preferredTypes: string[] = [],
+): string | null {
+  const urls: Array<{ url: string; score: number }> = [];
+  const seen = new Set<unknown>();
+
+  const walk = (node: unknown, parentKey = "") => {
+    if (typeof node === "string") {
+      if (/^https?:\/\//i.test(node)) {
+        const lower = `${parentKey} ${node}`.toLowerCase();
+        const score = preferredTypes.reduce(
+          (total, type) => total + (lower.includes(type.toLowerCase()) ? 10 : 0),
+          0,
+        );
+        urls.push({ url: node, score });
+      }
+      return;
+    }
+
+    if (!node || typeof node !== "object" || seen.has(node)) {
+      return;
+    }
+
+    seen.add(node);
+
+    for (const [key, value] of Object.entries(node as Record<string, unknown>)) {
+      walk(value, key);
+    }
+  };
+
+  walk(body);
+  urls.sort((a, b) => b.score - a.score);
+  return urls[0]?.url ?? null;
 }
 
 /** Safe, non-sensitive error message for the UI. */

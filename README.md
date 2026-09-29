@@ -76,3 +76,10 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+## AI Workspace / FAL
+
+The `/ai-workspace` page exposes the AI tools for image, video, audio, 3D and assistants. FAL calls are server-side and use the `FAL_KEY` environment variable; do not expose this key in client code.
+
+### Unified generation interface
+The AI Workspace now uses a shared, mobile-first dark generation canvas inspired by modern AI video/image generators. Every model in the Image, Video, Audio and 3D catalogs uses the same interaction pattern: model selector, prompt, aspect ratio, optional upload, variants, credits display and gradient Generate action.

@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { User, CreditCard, Home, Sparkles } from "lucide-react";
 
 function NotFoundComponent() {
   return (
@@ -119,8 +120,41 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <nav className="fixed inset-x-0 bottom-0 z-50 px-4 pb-4 sm:px-6">
+        <div className="mx-auto flex max-w-md items-center justify-around rounded-[2rem] border border-violet-300/25 bg-[linear-gradient(135deg,oklch(0.25_0.09_285/0.94),oklch(0.13_0.06_275/0.97))] px-3 py-2 shadow-[0_18px_50px_-18px_oklch(0.12_0.12_285/0.9)] backdrop-blur-xl">
+          <NavLink to="/" label="Home" icon={<Home className="size-5" />} />
+          <NavLink to="/blank" label="" icon={<Sparkles className="size-5" />} ariaLabel="Outils IA" />
+          <NavLink to="/account" label="Compte" icon={<User className="size-5" />} />
+          <NavLink to="/payments" label="Paiements" icon={<CreditCard className="size-5" />} />
+        </div>
+      </nav>
+      <div className="pb-24">
+        <Outlet />
+      </div>
     </QueryClientProvider>
+  );
+}
+
+function NavLink({
+  to,
+  label,
+  icon,
+  ariaLabel,
+}: {
+  to: string;
+  label: string;
+  icon: ReactNode;
+  ariaLabel?: string;
+}) {
+  return (
+    <Link
+      to={to}
+      aria-label={ariaLabel ?? label}
+      activeProps={{ className: "bg-primary/20 text-primary shadow-[0_0_24px_oklch(0.78_0.16_78/0.28)]" }}
+      className="group inline-flex min-w-16 flex-col items-center justify-center gap-1 rounded-2xl px-3 py-2 text-[10px] font-medium text-violet-100/65 transition hover:bg-white/10 hover:text-white"
+    >
+      <span>{icon}</span>
+      {label && <span className="hidden sm:inline">{label}</span>}
+    </Link>
   );
 }

@@ -10,14 +10,22 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AccountRouteImport } from './routes/account'
+import { Route as AiStudioRouteImport } from './routes/ai-studio'
+import { Route as AiWorkspaceRouteImport } from './routes/ai-workspace'
+import { Route as AiHubRouteImport } from './routes/ai-hub'
+import { Route as AiBuildersRouteImport } from './routes/ai-builders'
+import { Route as AiImageRouteImport } from './routes/ai-image'
 import { Route as AiVideoGeneratorRouteImport } from './routes/ai-video-generator'
+import { Route as ApidotMediaRouteImport } from './routes/apidot-media'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BlankRouteImport } from './routes/blank'
+import { Route as ThreeDGenerationRouteImport } from './routes/3d-generation'
 import { Route as CharacterSwapRouteImport } from './routes/character-swap'
-import { Route as ElevenLabsRouteImport } from './routes/eleven-labs'
-import { Route as ElevenLabsMusicRouteImport } from './routes/eleven-labs-music'
 import { Route as ImageToVideoRouteImport } from './routes/image-to-video'
-import { Route as MeshyIaRouteImport } from './routes/meshy-ia'
 import { Route as MultiSceneRouteImport } from './routes/multi-scene'
+import { Route as PaymentsRouteImport } from './routes/payments'
+import { Route as VoiceRouteImport } from './routes/voice'
 import { Route as Wan22RouteImport } from './routes/wan-2-2'
 import { Route as ApiPublicVideoProxyRouteImport } from './routes/api/public/video-proxy'
 
@@ -26,9 +34,44 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AiStudioRoute = AiStudioRouteImport.update({
+  id: '/ai-studio',
+  path: '/ai-studio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiWorkspaceRoute = AiWorkspaceRouteImport.update({
+  id: '/ai-workspace',
+  path: '/ai-workspace',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiHubRoute = AiHubRouteImport.update({
+  id: '/ai-hub',
+  path: '/ai-hub',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiBuildersRoute = AiBuildersRouteImport.update({
+  id: '/ai-builders',
+  path: '/ai-builders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiImageRoute = AiImageRouteImport.update({
+  id: '/ai-image',
+  path: '/ai-image',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AiVideoGeneratorRoute = AiVideoGeneratorRouteImport.update({
   id: '/ai-video-generator',
   path: '/ai-video-generator',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApidotMediaRoute = ApidotMediaRouteImport.update({
+  id: '/apidot-media',
+  path: '/apidot-media',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -36,19 +79,19 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlankRoute = BlankRouteImport.update({
+  id: '/blank',
+  path: '/blank',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ThreeDGenerationRoute = ThreeDGenerationRouteImport.update({
+  id: '/3d-generation',
+  path: '/3d-generation',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CharacterSwapRoute = CharacterSwapRouteImport.update({
   id: '/character-swap',
   path: '/character-swap',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ElevenLabsRoute = ElevenLabsRouteImport.update({
-  id: '/eleven-labs',
-  path: '/eleven-labs',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ElevenLabsMusicRoute = ElevenLabsMusicRouteImport.update({
-  id: '/eleven-labs-music',
-  path: '/eleven-labs-music',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ImageToVideoRoute = ImageToVideoRouteImport.update({
@@ -56,14 +99,19 @@ const ImageToVideoRoute = ImageToVideoRouteImport.update({
   path: '/image-to-video',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MeshyIaRoute = MeshyIaRouteImport.update({
-  id: '/meshy-ia',
-  path: '/meshy-ia',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const MultiSceneRoute = MultiSceneRouteImport.update({
   id: '/multi-scene',
   path: '/multi-scene',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentsRoute = PaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VoiceRoute = VoiceRouteImport.update({
+  id: '/voice',
+  path: '/voice',
   getParentRoute: () => rootRouteImport,
 } as any)
 const Wan22Route = Wan22RouteImport.update({
@@ -79,41 +127,65 @@ const ApiPublicVideoProxyRoute = ApiPublicVideoProxyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
+  '/ai-workspace': typeof AiWorkspaceRoute
+  '/ai-hub': typeof AiHubRoute
+  '/ai-builders': typeof AiBuildersRoute
+  '/ai-studio': typeof AiStudioRoute
+  '/ai-image': typeof AiImageRoute
   '/ai-video-generator': typeof AiVideoGeneratorRoute
+  '/apidot-media': typeof ApidotMediaRoute
   '/auth': typeof AuthRoute
+  '/blank': typeof BlankRoute
+  '/3d-generation': typeof ThreeDGenerationRoute
   '/character-swap': typeof CharacterSwapRoute
-  '/eleven-labs': typeof ElevenLabsRoute
-  '/eleven-labs-music': typeof ElevenLabsMusicRoute
   '/image-to-video': typeof ImageToVideoRoute
-  '/meshy-ia': typeof MeshyIaRoute
   '/multi-scene': typeof MultiSceneRoute
+  '/payments': typeof PaymentsRoute
+  '/voice': typeof VoiceRoute
   '/wan-2-2': typeof Wan22Route
   '/api/public/video-proxy': typeof ApiPublicVideoProxyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
+  '/ai-workspace': typeof AiWorkspaceRoute
+  '/ai-hub': typeof AiHubRoute
+  '/ai-builders': typeof AiBuildersRoute
+  '/ai-studio': typeof AiStudioRoute
+  '/ai-image': typeof AiImageRoute
   '/ai-video-generator': typeof AiVideoGeneratorRoute
+  '/apidot-media': typeof ApidotMediaRoute
   '/auth': typeof AuthRoute
+  '/blank': typeof BlankRoute
+  '/3d-generation': typeof ThreeDGenerationRoute
   '/character-swap': typeof CharacterSwapRoute
-  '/eleven-labs': typeof ElevenLabsRoute
-  '/eleven-labs-music': typeof ElevenLabsMusicRoute
   '/image-to-video': typeof ImageToVideoRoute
-  '/meshy-ia': typeof MeshyIaRoute
   '/multi-scene': typeof MultiSceneRoute
+  '/payments': typeof PaymentsRoute
+  '/voice': typeof VoiceRoute
   '/wan-2-2': typeof Wan22Route
   '/api/public/video-proxy': typeof ApiPublicVideoProxyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
+  '/ai-workspace': typeof AiWorkspaceRoute
+  '/ai-hub': typeof AiHubRoute
+  '/ai-builders': typeof AiBuildersRoute
+  '/ai-studio': typeof AiStudioRoute
+  '/ai-image': typeof AiImageRoute
   '/ai-video-generator': typeof AiVideoGeneratorRoute
+  '/apidot-media': typeof ApidotMediaRoute
   '/auth': typeof AuthRoute
+  '/blank': typeof BlankRoute
+  '/3d-generation': typeof ThreeDGenerationRoute
   '/character-swap': typeof CharacterSwapRoute
-  '/eleven-labs': typeof ElevenLabsRoute
-  '/eleven-labs-music': typeof ElevenLabsMusicRoute
   '/image-to-video': typeof ImageToVideoRoute
-  '/meshy-ia': typeof MeshyIaRoute
   '/multi-scene': typeof MultiSceneRoute
+  '/payments': typeof PaymentsRoute
+  '/voice': typeof VoiceRoute
   '/wan-2-2': typeof Wan22Route
   '/api/public/video-proxy': typeof ApiPublicVideoProxyRoute
 }
@@ -121,55 +193,85 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/account'
+    | '/ai-workspace'
+    | '/ai-hub'
+    | '/ai-builders'
+    | '/ai-studio'
+    | '/ai-image'
     | '/ai-video-generator'
+    | '/apidot-media'
     | '/auth'
+    | '/blank'
+    | '/3d-generation'
     | '/character-swap'
-    | '/eleven-labs'
-    | '/eleven-labs-music'
     | '/image-to-video'
-    | '/meshy-ia'
     | '/multi-scene'
+    | '/payments'
+    | '/voice'
     | '/wan-2-2'
     | '/api/public/video-proxy'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/account'
+    | '/ai-workspace'
+    | '/ai-hub'
+    | '/ai-builders'
+    | '/ai-studio'
+    | '/ai-image'
     | '/ai-video-generator'
+    | '/apidot-media'
     | '/auth'
+    | '/blank'
+    | '/3d-generation'
     | '/character-swap'
-    | '/eleven-labs'
-    | '/eleven-labs-music'
     | '/image-to-video'
-    | '/meshy-ia'
     | '/multi-scene'
+    | '/payments'
+    | '/voice'
     | '/wan-2-2'
     | '/api/public/video-proxy'
   id:
     | '__root__'
     | '/'
+    | '/account'
+    | '/ai-workspace'
+    | '/ai-hub'
+    | '/ai-builders'
+    | '/ai-studio'
+    | '/ai-image'
     | '/ai-video-generator'
+    | '/apidot-media'
     | '/auth'
+    | '/blank'
+    | '/3d-generation'
     | '/character-swap'
-    | '/eleven-labs'
-    | '/eleven-labs-music'
     | '/image-to-video'
-    | '/meshy-ia'
     | '/multi-scene'
+    | '/payments'
+    | '/voice'
     | '/wan-2-2'
     | '/api/public/video-proxy'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccountRoute: typeof AccountRoute
+  AiStudioRoute: typeof AiStudioRoute
+  AiWorkspaceRoute: typeof AiWorkspaceRoute
+  AiHubRoute: typeof AiHubRoute
+  AiBuildersRoute: typeof AiBuildersRoute
+  AiImageRoute: typeof AiImageRoute
   AiVideoGeneratorRoute: typeof AiVideoGeneratorRoute
+  ApidotMediaRoute: typeof ApidotMediaRoute
   AuthRoute: typeof AuthRoute
+  BlankRoute: typeof BlankRoute
   CharacterSwapRoute: typeof CharacterSwapRoute
-  ElevenLabsRoute: typeof ElevenLabsRoute
-  ElevenLabsMusicRoute: typeof ElevenLabsMusicRoute
   ImageToVideoRoute: typeof ImageToVideoRoute
-  MeshyIaRoute: typeof MeshyIaRoute
   MultiSceneRoute: typeof MultiSceneRoute
-  Wan22Route: typeof Wan22Route
+  PaymentsRoute: typeof PaymentsRoute
+  VoiceRoute: typeof VoiceRoute
   ApiPublicVideoProxyRoute: typeof ApiPublicVideoProxyRoute
 }
 
@@ -182,11 +284,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-workspace': {
+      id: '/ai-workspace'
+      path: '/ai-workspace'
+      fullPath: '/ai-workspace'
+      preLoaderRoute: typeof AiWorkspaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-hub': {
+      id: '/ai-hub'
+      path: '/ai-hub'
+      fullPath: '/ai-hub'
+      preLoaderRoute: typeof AiHubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-builders': {
+      id: '/ai-builders'
+      path: '/ai-builders'
+      fullPath: '/ai-builders'
+      preLoaderRoute: typeof AiBuildersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-image': {
+      id: '/ai-image'
+      path: '/ai-image'
+      fullPath: '/ai-image'
+      preLoaderRoute: typeof AiImageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ai-video-generator': {
       id: '/ai-video-generator'
       path: '/ai-video-generator'
       fullPath: '/ai-video-generator'
       preLoaderRoute: typeof AiVideoGeneratorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apidot-media': {
+      id: '/apidot-media'
+      path: '/apidot-media'
+      fullPath: '/apidot-media'
+      preLoaderRoute: typeof ApidotMediaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -196,25 +340,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blank': {
+      id: '/blank',
+      path: '/blank',
+      fullPath: '/blank',
+      preLoaderRoute: typeof BlankRouteImport,
+      parentRoute: typeof rootRouteImport
+    }
+    '/3d-generation': {
+      id: '/3d-generation',
+      path: '/3d-generation',
+      fullPath: '/3d-generation',
+      preLoaderRoute: typeof ThreeDGenerationRouteImport,
+      parentRoute: typeof rootRouteImport
+    }
     '/character-swap': {
-      id: '/character-swap'
-      path: '/character-swap'
-      fullPath: '/character-swap'
-      preLoaderRoute: typeof CharacterSwapRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/eleven-labs': {
-      id: '/eleven-labs'
-      path: '/eleven-labs'
-      fullPath: '/eleven-labs'
-      preLoaderRoute: typeof ElevenLabsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/eleven-labs-music': {
-      id: '/eleven-labs-music'
-      path: '/eleven-labs-music'
-      fullPath: '/eleven-labs-music'
-      preLoaderRoute: typeof ElevenLabsMusicRouteImport
+      id: '/character-swap',
+      path: '/character-swap',
+      fullPath: '/character-swap',
+      preLoaderRoute: typeof CharacterSwapRouteImport,
       parentRoute: typeof rootRouteImport
     }
     '/image-to-video': {
@@ -222,13 +366,6 @@ declare module '@tanstack/react-router' {
       path: '/image-to-video'
       fullPath: '/image-to-video'
       preLoaderRoute: typeof ImageToVideoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/meshy-ia': {
-      id: '/meshy-ia'
-      path: '/meshy-ia'
-      fullPath: '/meshy-ia'
-      preLoaderRoute: typeof MeshyIaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/multi-scene': {
@@ -245,6 +382,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Wan22RouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/payments': {
+      id: '/payments'
+      path: '/payments'
+      fullPath: '/payments'
+      preLoaderRoute: typeof PaymentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/voice': {
+      id: '/voice'
+      path: '/voice'
+      fullPath: '/voice'
+      preLoaderRoute: typeof VoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/video-proxy': {
       id: '/api/public/video-proxy'
       path: '/api/public/video-proxy'
@@ -257,14 +408,22 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccountRoute: AccountRoute,
+  AiStudioRoute: AiStudioRoute,
+  AiWorkspaceRoute: AiWorkspaceRoute,
+  AiHubRoute: AiHubRoute,
+  AiBuildersRoute: AiBuildersRoute,
+  AiImageRoute: AiImageRoute,
   AiVideoGeneratorRoute: AiVideoGeneratorRoute,
+  ApidotMediaRoute: ApidotMediaRoute,
   AuthRoute: AuthRoute,
+  BlankRoute: BlankRoute,
+  ThreeDGenerationRoute: ThreeDGenerationRoute,
   CharacterSwapRoute: CharacterSwapRoute,
-  ElevenLabsRoute: ElevenLabsRoute,
-  ElevenLabsMusicRoute: ElevenLabsMusicRoute,
   ImageToVideoRoute: ImageToVideoRoute,
-  MeshyIaRoute: MeshyIaRoute,
   MultiSceneRoute: MultiSceneRoute,
+  PaymentsRoute: PaymentsRoute,
+  VoiceRoute: VoiceRoute,
   Wan22Route: Wan22Route,
   ApiPublicVideoProxyRoute: ApiPublicVideoProxyRoute,
 }
