@@ -83,3 +83,27 @@ The `/ai-workspace` page exposes the AI tools for image, video, audio, 3D and as
 
 ### Unified generation interface
 The AI Workspace now uses a shared, mobile-first dark generation canvas inspired by modern AI video/image generators. Every model in the Image, Video, Audio and 3D catalogs uses the same interaction pattern: model selector, prompt, aspect ratio, optional upload, variants, credits display and gradient Generate action.
+
+## ChatGPT App / MCP
+
+The project now includes a `mcp-server/` starter that exposes IA-67 tools to ChatGPT and Codex through MCP. It includes `list_models`, `enhance_prompt`, `generate_image`, and `open_workspace`.
+
+Deploy `mcp-server/` as a separate Node 20+ HTTPS service, keep `FAL_KEY` server-side, then connect the public `/mcp` endpoint in ChatGPT Developer Mode / Plugins. See `mcp-server/README.md` and the in-app page `/chatgpt-plugin`.
+
+## ChatGPT / MCP — 35 AI Workspace tools
+
+The `mcp-server/` connector now exposes all 35 tools currently defined in `src/lib/fal.functions.ts` / AI Workspace, including Image, Video, Audio, 3D and Assistant workflows. The server registers each capability as a dedicated MCP tool and keeps `FAL_KEY` server-side.
+
+## Higgsfield API (server-side)
+
+IA-67 includes a server-side Higgsfield adapter. It uses the official REST API at `https://api.higgsfield.ai` and reads credentials only from the server environment.
+
+Configure this variable in Vercel (Production/Preview/Development as needed):
+
+```env
+HF_CREDENTIALS=YOUR_KEY_ID:YOUR_KEY_SECRET
+```
+
+Do not put the credential in `VITE_*`, React components, browser storage, or GitHub. The Higgsfield Studio is available at `/higgsfield-studio` and can be opened from `/blank`.
+
+The adapter uses asynchronous request IDs and server-side polling. Current verified model integrations include Soul Standard, Soul 2, Wan 2.7, HappyHorse 1.1, Wan 2.6 Reference, Kling O3 image/video reference, and Happy Horse Reference.

@@ -30,7 +30,7 @@ function AiWorkspacePage() {
   const [variants, setVariants] = useState(1);
   const [aspectRatio, setAspectRatio] = useState<"16:9" | "9:16">("16:9");
   const [results, setResults] = useState<{ url?: string | null; id: string }[]>([]);
-  const [view, setView] = useState<"create" | "history" | "creations" | "favorites" | "gallery" | "templates">("create");
+  const [view, setView] = useState<"create" | "explore" | "history" | "creations" | "favorites" | "gallery" | "templates">("create");
   const [history, setHistory] = useState<Creation[]>([]);
   const [folders, setFolders] = useState<string[]>([]);
   const [templates, setTemplates] = useState<Template[]>([]);
@@ -39,6 +39,10 @@ function AiWorkspacePage() {
   const [beforeUrl, setBeforeUrl] = useState<string>();
   const [afterUrl, setAfterUrl] = useState<string>();
   const [folderName, setFolderName] = useState("");
+  const [modelSearchOpen, setModelSearchOpen] = useState(false);
+  const [modelSearch, setModelSearch] = useState("");
+  const [modelSearchTab, setModelSearchTab] = useState<"All" | "Models" | "Products" | "Characters" | "Community" | "Apps" | "Originals">("Models");
+  const [modelSearchCategory, setModelSearchCategory] = useState<Category>("Image");
   const fileRef = useRef<HTMLInputElement>(null);
   const run = useServerFn(runFalTool);
   const poll = useServerFn(pollFalTool);
@@ -120,6 +124,25 @@ function AiWorkspacePage() {
 
   const popular = filtered.slice(0, 4);
   const CurrentIcon = iconFor(selected.category);
+  const searchCategories = [
+    { label: "Image", icon: ImageIcon, count: FAL_TOOLS.filter((x) => x.category === "Image").length },
+    { label: "Video", icon: Video, count: FAL_TOOLS.filter((x) => x.category === "Video").length },
+    { label: "Edit", icon: SlidersHorizontal, count: FAL_TOOLS.filter((x) => ["Image", "Video"].includes(x.category)).length },
+    { label: "Audio", icon: AudioLines, count: FAL_TOOLS.filter((x) => x.category === "Audio").length },
+  ];
+  const modelSearchResults = useMemo(() => {
+    const q = modelSearch.trim().toLowerCase();
+    const pool = modelSearchCategory === "All" ? FAL_TOOLS : FAL_TOOLS.filter((x) => x.category === modelSearchCategory);
+    return pool.filter((x) => !q || `${x.label} ${x.description} ${x.model}`.toLowerCase().includes(q));
+  }, [modelSearch, modelSearchCategory]);
+  const chooseModelFromSearch = (id: string) => {
+    const item = FAL_TOOLS.find((x) => x.id === id);
+    if (!item) return;
+    setActive(id);
+    setCategory(item.category as Category);
+    setModelSearchOpen(false);
+    setModelSearch("");
+  };
 
   return <main className="min-h-screen overflow-x-hidden bg-[#05060a] text-white">
     <div className="mx-auto min-h-screen max-w-[1500px] px-4 pb-28 pt-4 sm:px-6 lg:px-8 lg:pb-10">
@@ -130,9 +153,9 @@ function AiWorkspacePage() {
           <div className="min-w-0"><h1 className="truncate text-xl font-bold tracking-tight sm:text-2xl">AI Workspace</h1><p className="truncate text-xs text-white/45 sm:text-sm">Créez · Générez · Éditez · Innovez</p></div>
         </div>
         <div className="flex items-center gap-2">
-          <button className="grid size-10 place-items-center rounded-full border border-white/10 bg-white/[.03] sm:hidden"><Search className="size-5 text-white/75" /></button>
+          <button onClick={() => setModelSearchOpen(true)} aria-label="Rechercher un modèle" className="grid size-10 place-items-center rounded-full border border-white/10 bg-white/[.03] sm:hidden"><Search className="size-5 text-white/75" /></button>
           <button className="relative hidden size-10 place-items-center rounded-full border border-white/10 bg-white/[.03] sm:grid"><Bell className="size-5 text-white/70" /><span className="absolute right-2 top-2 size-2 rounded-full bg-pink-500" /></button>
-          <a href="/ai-hub" className="hidden rounded-full border border-violet-400/20 bg-violet-400/10 px-4 py-2 text-xs font-semibold text-violet-200 sm:block">AI Creative Hub</a>
+          <a href="/chatgpt-plugin" className="hidden rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-xs font-semibold text-cyan-200 sm:block">ChatGPT App</a><a href="/ai-hub" className="hidden rounded-full border border-violet-400/20 bg-violet-400/10 px-4 py-2 text-xs font-semibold text-violet-200 sm:block">AI Creative Hub</a>
           <div className="hidden rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-[10px] text-emerald-200 md:block">FAL server-side</div>
           <div className="grid size-10 place-items-center rounded-full border border-white/10 bg-gradient-to-br from-white/20 to-white/5"><UserCircle className="size-5 text-white/75" /></div>
         </div>
@@ -159,7 +182,7 @@ function AiWorkspacePage() {
         </div>
 
         <div className="mt-4 flex gap-2">
-          <label className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl border border-white/10 bg-[#0d1018] px-4 py-3"><Search className="size-5 shrink-0 text-white/35" /><input placeholder="Rechercher un modèle…" className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-white/30" onChange={e => { const q=e.target.value.toLowerCase(); const found=FAL_TOOLS.find(x=>x.label.toLowerCase().includes(q)); if(found){setActive(found.id); setCategory(found.category as Category)} }} /></label>
+          <button onClick={() => setModelSearchOpen(true)} className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl border border-white/10 bg-[#0d1018] px-4 py-3 text-left hover:border-white/20 hover:bg-[#11151e]"><Search className="size-5 shrink-0 text-white/35" /><span className="min-w-0 flex-1 truncate text-sm text-white/35">Rechercher un modèle…</span><kbd className="hidden rounded-lg border border-white/10 bg-white/[.04] px-2 py-1 text-[9px] text-white/25 sm:block">⌘ K</kbd></button>
           <button onClick={() => setSelectorNote(`${selected.label} · ${selected.model}`)} className="grid size-12 shrink-0 place-items-center rounded-2xl border border-white/10 bg-[#0d1018] text-white/60"><SlidersHorizontal className="size-5" /></button>
         </div>
 
@@ -202,14 +225,58 @@ function AiWorkspacePage() {
             </div>
           </div>
         </section>
-      </> : <section className="mt-6">
+      </> : view === "explore" ? <section className="mt-6">
+        <div className="mb-5 flex items-end justify-between gap-3">
+          <div><span className="inline-flex rounded-full border border-violet-400/20 bg-violet-400/10 px-3 py-1 text-[10px] font-semibold text-violet-200">36 fonctionnalités</span><h2 className="mt-3 text-2xl font-black sm:text-3xl">Explorez tous les modèles IA</h2><p className="mt-1 text-xs text-white/40 sm:text-sm">Image, vidéo, audio, 3D et assistants — chaque fonctionnalité dans son propre espace.</p></div>
+          <button onClick={() => setModelSearchOpen(true)} className="hidden shrink-0 items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-4 py-2 text-xs font-semibold text-white/70 hover:bg-white/[.08] sm:flex"><Search className="size-4" />Rechercher</button>
+        </div>
+        <button onClick={() => setModelSearchOpen(true)} className="group block w-full overflow-hidden rounded-[2rem] border border-white/10 bg-[#0b0f18] p-2 shadow-2xl shadow-violet-950/20 transition hover:border-violet-400/30 sm:p-3">
+          <img src="/workspace-36-models.png" alt="IA-67 — 36 fonctionnalités et modèles IA" className="w-full rounded-[1.5rem] object-cover transition duration-500 group-hover:scale-[1.005]" />
+          <div className="flex items-center justify-between gap-3 px-2 py-3 sm:px-4"><span className="text-left text-xs text-white/45">Cliquez pour rechercher et ouvrir un modèle dans le Workspace.</span><span className="shrink-0 rounded-full bg-white px-4 py-2 text-[10px] font-bold text-black">Explorer les modèles →</span></div>
+        </button>
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          {categories.filter((x) => x !== "All").map((item) => { const Icon = iconFor(item); const count = FAL_TOOLS.filter((x) => x.category === item).length; return <button key={item} onClick={() => { setCategory(item); setView("create"); }} className="rounded-2xl border border-white/10 bg-white/[.03] p-4 text-left hover:border-violet-400/30 hover:bg-white/[.06]"><span className="grid size-9 place-items-center rounded-xl bg-violet-500/15 text-violet-200"><Icon className="size-4" /></span><p className="mt-3 text-xs font-bold">{item}</p><p className="mt-1 text-[10px] text-white/35">{count} modèles</p></button>; })}
+        </div>
+      </section> : <section className="mt-6">
         <div className="mb-4 flex items-center justify-between"><div><h2 className="text-xl font-semibold">{view === "history" ? "History" : view === "creations" ? "My Creations" : view === "favorites" ? "Favorites" : view === "gallery" ? "Public Gallery" : "Templates"}</h2><p className="mt-1 text-xs text-white/35">{view === "gallery" ? "Les créations marquées publiques dans ce navigateur." : "Tes créations et ressources enregistrées."}</p></div><button onClick={() => setView("create")} className="rounded-full bg-white px-4 py-2 text-xs font-semibold text-black">Create</button></div>
         {view === "templates" ? <div className="grid gap-3 md:grid-cols-2">{templates.map(t => <button key={t.id} onClick={() => { setActive(t.toolId); setPrompt(t.prompt); setView("create"); }} className="rounded-2xl border border-white/10 bg-white/[.03] p-4 text-left hover:bg-white/[.06]"><div className="flex items-center justify-between"><span className="text-xs font-semibold">{t.name}</span><WandSparkles className="size-4 text-violet-300" /></div><p className="mt-2 line-clamp-3 text-[11px] text-white/45">{t.prompt}</p></button>)}{!templates.length && <Empty label="Aucun template sauvegardé." />}</div> : <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{visibleItems.map(item => <article key={item.id} className="overflow-hidden rounded-2xl border border-white/10 bg-white/[.03]">{item.url && item.category === "Image" ? <img src={item.url} className="aspect-square w-full object-cover" /> : item.url && item.category === "Video" ? <video src={item.url} controls className="aspect-video w-full object-cover" /> : <div className="grid aspect-square place-items-center bg-black/20 text-xs text-white/35">{item.tool}</div>}<div className="p-3"><p className="text-xs font-semibold">{item.tool}</p><p className="mt-1 line-clamp-2 text-[10px] text-white/35">{item.prompt}</p><div className="mt-3 flex items-center gap-1"><button onClick={() => toggleFavorite(item.id)} className={`grid size-8 place-items-center rounded-lg ${item.favorite ? "bg-pink-500/20 text-pink-300" : "bg-white/[.05] text-white/45"}`}><Heart className="size-3.5" /></button><button onClick={() => togglePublic(item.id)} className={`grid size-8 place-items-center rounded-lg ${item.public ? "bg-emerald-500/20 text-emerald-300" : "bg-white/[.05] text-white/45"}`}><GalleryHorizontal className="size-3.5" /></button>{item.url && <a href={item.url} download className="ml-auto grid size-8 place-items-center rounded-lg bg-white text-black"><Download className="size-3.5" /></a>}</div></div></article>)}{!visibleItems.length && <Empty label={view === "gallery" ? "Aucune création publiée." : "Aucune création pour le moment."} />}</div>}
       </section>}
 
+      {modelSearchOpen && <div className="fixed inset-0 z-[100] bg-black/70 p-3 backdrop-blur-md sm:p-6" role="dialog" aria-modal="true" aria-label="Recherche de modèles" onMouseDown={(e) => { if (e.target === e.currentTarget) setModelSearchOpen(false); }}>
+        <div className="mx-auto flex h-full max-h-[calc(100vh-1.5rem)] w-full max-w-[1180px] flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-[#1b1f20]/95 shadow-2xl shadow-black/60 sm:max-h-[calc(100vh-3rem)]">
+          <div className="flex items-center gap-3 border-b border-white/[.06] px-4 py-3 sm:px-5 sm:py-4">
+            <Search className="size-6 shrink-0 text-white/45" />
+            <input autoFocus value={modelSearch} onChange={(e) => setModelSearch(e.target.value)} onKeyDown={(e) => { if (e.key === "Escape") setModelSearchOpen(false); }} placeholder="Search" className="min-w-0 flex-1 bg-transparent text-xl text-white outline-none placeholder:text-white/30 sm:text-2xl" />
+            <button onClick={() => setModelSearchOpen(false)} aria-label="Fermer" className="grid size-12 shrink-0 place-items-center rounded-full bg-white/[.06] text-white/80 hover:bg-white/[.1]"><X className="size-6" /></button>
+          </div>
+          <div className="flex gap-2 overflow-x-auto border-b border-white/[.06] px-4 py-3 [scrollbar-width:none] sm:px-6">
+            {["All", "Models", "Products", "Characters", "Community", "Apps", "Originals"].map((tab) => <button key={tab} onClick={() => setModelSearchTab(tab as typeof modelSearchTab)} className={`flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${modelSearchTab === tab ? "border-white/5 bg-white/15 text-white" : "border-white/10 bg-transparent text-white/65 hover:bg-white/[.05]"}`}>{tab}{["Apps", "Originals"].includes(tab) && <span className="text-xs">↗</span>}</button>)}
+          </div>
+          <div className="grid min-h-0 flex-1 lg:grid-cols-[260px_minmax(0,1fr)]">
+            <aside className="hidden border-r border-white/[.06] p-5 lg:block">
+              <p className="mb-4 text-sm font-semibold text-white/45">Categories</p>
+              <div className="space-y-2">
+                {searchCategories.map((item) => { const Icon = item.icon; const activeCat = modelSearchCategory === item.label; return <button key={item.label} onClick={() => setModelSearchCategory(item.label as Category)} className={`flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left transition ${activeCat ? "bg-white/15 text-white" : "text-white/60 hover:bg-white/[.05]"}`}><span className={`grid size-10 place-items-center rounded-xl ${activeCat ? "bg-white/10" : "bg-white/[.05]"}`}><Icon className="size-5" /></span><span className="flex-1 text-base font-semibold">{item.label}</span><span className={`rounded-lg px-2 py-1 text-xs font-bold ${activeCat ? "bg-white/10 text-white/80" : "bg-white/[.05] text-white/35"}`}>{item.count}</span></button>; })}
+              </div>
+              <button onClick={() => setModelSearchCategory("All")} className={`mt-2 flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-white/60 hover:bg-white/[.05] ${modelSearchCategory === "All" ? "bg-white/10 text-white" : ""}`}><span className="grid size-10 place-items-center rounded-xl bg-white/[.05]"><Sparkles className="size-5" /></span><span className="text-base font-semibold">All</span></button>
+            </aside>
+            <section className="min-h-0 overflow-y-auto p-4 sm:p-6">
+              <div className="mb-4 flex items-center justify-between gap-3"><div><h3 className="text-lg font-bold sm:text-xl">{modelSearchCategory === "All" ? "All models" : `${modelSearchCategory} models`}</h3><p className="mt-1 text-xs text-white/35">Choisissez un modèle pour l'ouvrir dans votre workspace.</p></div><span className="rounded-full bg-white/[.06] px-3 py-1.5 text-xs text-white/45">{modelSearchResults.length}</span></div>
+              <div className="mb-4 flex gap-2 overflow-x-auto pb-1 lg:hidden [scrollbar-width:none]">
+                {[{label:"Image", icon:ImageIcon},{label:"Video",icon:Video},{label:"Edit",icon:SlidersHorizontal},{label:"Audio",icon:AudioLines}].map(({label,icon:Icon}) => <button key={label} onClick={() => setModelSearchCategory(label === "Edit" ? "All" : label as Category)} className={`flex shrink-0 items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold ${modelSearchCategory === label ? "border-white/10 bg-white/15" : "border-white/10 bg-transparent text-white/55"}`}><Icon className="size-4" />{label}</button>)}
+              </div>
+              {modelSearchTab === "Models" || modelSearchTab === "All" ? <div className="space-y-1">
+                {modelSearchResults.map((item) => { const Icon = iconFor(item.category); return <button key={item.id} onClick={() => chooseModelFromSearch(item.id)} className={`group flex w-full items-center gap-4 rounded-2xl p-3 text-left transition sm:p-4 ${active === item.id ? "bg-white/[.09]" : "hover:bg-white/[.05]"}`}><span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-[#2b2f30] text-white/90 sm:size-14"><Icon className="size-6" /></span><span className="min-w-0 flex-1"><span className="flex flex-wrap items-center gap-2"><span className="truncate text-base font-bold sm:text-lg">{item.label}</span>{item.id === "image-generator" && <span className="rounded-md bg-lime-400 px-2 py-0.5 text-[10px] font-black italic text-black">NEW</span>}</span><span className="mt-1 block truncate text-sm text-white/45">{item.description}</span></span><span className="hidden rounded-full bg-white/[.06] px-2.5 py-1 text-[10px] font-semibold text-white/35 sm:block">{item.category}</span></button>; })}
+                {!modelSearchResults.length && <div className="grid min-h-56 place-items-center rounded-3xl border border-dashed border-white/10 text-sm text-white/30">Aucun modèle trouvé.</div>}
+              </div> : <div className="grid min-h-56 place-items-center rounded-3xl border border-dashed border-white/10 text-sm text-white/30">Cette section est visuelle pour le moment. Les modèles IA-67 sont disponibles dans Models.</div>}
+            </section>
+          </div>
+        </div>
+      </div>}
+
       <nav className="fixed bottom-3 left-1/2 z-50 flex w-[calc(100%-1.5rem)] max-w-md -translate-x-1/2 items-center justify-between rounded-[2rem] border border-violet-400/30 bg-[#12102c]/95 px-4 py-2 shadow-2xl shadow-violet-950/50 backdrop-blur-xl sm:hidden">
         <button onClick={() => setView("create")} className={`flex flex-1 flex-col items-center gap-1 py-2 text-[9px] ${view === "create" ? "text-violet-300" : "text-white/50"}`}><Sparkles className="size-5" />Accueil</button>
-        <button onClick={() => { setView("create"); setCategory("All"); }} className="flex flex-1 flex-col items-center gap-1 py-2 text-[9px] text-white/50"><Compass className="size-5" />Explorer</button>
+        <button onClick={() => setView("explore")} className={`flex flex-1 flex-col items-center gap-1 py-2 text-[9px] ${view === "explore" ? "text-violet-300" : "text-white/50"}`}><Compass className="size-5" />Explorer</button>
         <button onClick={() => setView("create")} className="-mt-7 grid size-14 shrink-0 place-items-center rounded-full border border-white/30 bg-gradient-to-br from-violet-500 to-blue-600 text-white shadow-xl shadow-violet-900/60"><Sparkles className="size-7" /></button>
         <button onClick={() => setView("creations")} className={`flex flex-1 flex-col items-center gap-1 py-2 text-[9px] ${view === "creations" ? "text-violet-300" : "text-white/50"}`}><GalleryHorizontal className="size-5" />Créations</button>
         <button onClick={() => setView("favorites")} className={`flex flex-1 flex-col items-center gap-1 py-2 text-[9px] ${view === "favorites" ? "text-violet-300" : "text-white/50"}`}><UserCircle className="size-5" />Profil</button>
