@@ -135,17 +135,6 @@ function AiWorkspacePage() {
     const pool = modelSearchCategory === "All" ? FAL_TOOLS : FAL_TOOLS.filter((x) => x.category === modelSearchCategory);
     return pool.filter((x) => !q || `${x.label} ${x.description} ${x.model}`.toLowerCase().includes(q));
   }, [modelSearch, modelSearchCategory]);
-  const routeForModel = (id: string) => {
-    const item = FAL_TOOLS.find((x) => x.id === id);
-    switch (item?.category ?? "") {
-      case "Image": return "/ai-image";
-      case "Video": return "/ai-video-generator";
-      case "Audio": return "/voice";
-      case "3D": return "/higgsfield-studio";
-      case "Assistants": return "/ai-hub";
-      default: return "/ai-hub";
-    }
-  };
   const chooseModelFromSearch = (id: string) => {
     const item = FAL_TOOLS.find((x) => x.id === id);
     if (!item) return;
@@ -153,13 +142,7 @@ function AiWorkspacePage() {
     setCategory(item.category as Category);
     setModelSearchOpen(false);
     setModelSearch("");
-    window.location.assign(routeForModel(id));
   };
-
-  if (typeof window !== "undefined") {
-    window.location.replace("/ai-hub");
-    return null;
-  }
 
   return <main className="min-h-screen overflow-x-hidden bg-[#05060a] text-white">
     <div className="mx-auto min-h-screen max-w-[1500px] px-4 pb-28 pt-4 sm:px-6 lg:px-8 lg:pb-10">
@@ -206,7 +189,7 @@ function AiWorkspacePage() {
         <section className="mt-7">
           <div className="mb-3 flex items-center justify-between"><div className="flex items-center gap-2"><span className="grid size-9 place-items-center rounded-full bg-gradient-to-br from-fuchsia-500 to-violet-500"><Zap className="size-4 fill-current" /></span><h3 className="text-xl font-bold">Modèles populaires</h3></div><button onClick={() => setCategory("All")} className="text-xs font-semibold text-violet-300">Voir tout →</button></div>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {popular.map((item, index) => { const Icon=iconFor(item.category); return <button key={item.id} onClick={() => { setActive(item.id); setError(null); window.location.assign(routeForModel(item.id)); }} className={`group overflow-hidden rounded-3xl border p-3 text-left transition hover:-translate-y-0.5 hover:border-violet-400/30 ${active === item.id ? "border-violet-400/50 bg-violet-500/[.08]" : "border-white/10 bg-[#0c0f18]"}`}><div className={`relative grid aspect-[1.55] place-items-center overflow-hidden rounded-2xl bg-gradient-to-br ${index % 4 === 0 ? "from-fuchsia-600/70 via-violet-600/30 to-cyan-500/30" : index % 4 === 1 ? "from-blue-700/70 via-indigo-600/30 to-fuchsia-500/20" : index % 4 === 2 ? "from-orange-500/60 via-pink-600/30 to-violet-600/40" : "from-slate-500/50 via-blue-600/40 to-violet-600/40"}`}><Icon className="size-14 text-white/80" /><span className="absolute right-2 top-2 rounded-full bg-emerald-400/20 px-2 py-1 text-[9px] font-bold text-emerald-200">FAL</span></div><div className="p-2"><div className="flex items-start justify-between gap-2"><div><p className="text-sm font-bold">{item.label}</p><p className="mt-1 line-clamp-2 text-[11px] leading-4 text-white/40">{item.description}</p></div><span className="grid size-8 shrink-0 place-items-center rounded-full bg-white/[.06] text-white/50 group-hover:bg-violet-500/30 group-hover:text-white">›</span></div><div className="mt-3 flex flex-wrap gap-1.5"><span className="rounded-full bg-white/[.06] px-2 py-1 text-[9px] text-white/55">{item.category}</span><span className="rounded-full bg-violet-500/15 px-2 py-1 text-[9px] text-violet-200">{item.model.split('/').pop()}</span></div></div></button> })}
+            {popular.map((item, index) => { const Icon=iconFor(item.category); return <button key={item.id} onClick={() => { setActive(item.id); setError(null); }} className={`group overflow-hidden rounded-3xl border p-3 text-left transition hover:-translate-y-0.5 hover:border-violet-400/30 ${active === item.id ? "border-violet-400/50 bg-violet-500/[.08]" : "border-white/10 bg-[#0c0f18]"}`}><div className={`relative grid aspect-[1.55] place-items-center overflow-hidden rounded-2xl bg-gradient-to-br ${index % 4 === 0 ? "from-fuchsia-600/70 via-violet-600/30 to-cyan-500/30" : index % 4 === 1 ? "from-blue-700/70 via-indigo-600/30 to-fuchsia-500/20" : index % 4 === 2 ? "from-orange-500/60 via-pink-600/30 to-violet-600/40" : "from-slate-500/50 via-blue-600/40 to-violet-600/40"}`}><Icon className="size-14 text-white/80" /><span className="absolute right-2 top-2 rounded-full bg-emerald-400/20 px-2 py-1 text-[9px] font-bold text-emerald-200">FAL</span></div><div className="p-2"><div className="flex items-start justify-between gap-2"><div><p className="text-sm font-bold">{item.label}</p><p className="mt-1 line-clamp-2 text-[11px] leading-4 text-white/40">{item.description}</p></div><span className="grid size-8 shrink-0 place-items-center rounded-full bg-white/[.06] text-white/50 group-hover:bg-violet-500/30 group-hover:text-white">›</span></div><div className="mt-3 flex flex-wrap gap-1.5"><span className="rounded-full bg-white/[.06] px-2 py-1 text-[9px] text-white/55">{item.category}</span><span className="rounded-full bg-violet-500/15 px-2 py-1 text-[9px] text-violet-200">{item.model.split('/').pop()}</span></div></div></button> })}
           </div>
         </section>
 

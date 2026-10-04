@@ -67,17 +67,6 @@ const categoryIcon = {
   Assistant: Sparkles,
 };
 
-const toolRoute = (tool: Tool) => {
-  switch (tool.category) {
-    case "Image": return "/ai-image";
-    case "Vidéo": return "/ai-video-generator";
-    case "Audio": return "/voice";
-    case "3D": return "/higgsfield-studio";
-    case "Assistant": return "/ai-hub";
-    default: return "/ai-hub";
-  }
-};
-
 function ToolsPage() {
   return (
     <main className="min-h-[calc(100vh-73px)] bg-[#080b12] px-3 py-4 text-white sm:px-6 sm:py-6">
@@ -126,7 +115,7 @@ function ToolsPage() {
             return (
               <Link
                 key={tool.title}
-                to={toolRoute(tool)}
+                to="/ai-workspace"
                 search={{ tool: tool.title }}
                 className="group relative aspect-square overflow-hidden rounded-2xl border border-white/15 bg-[#111722] shadow-[0_12px_30px_rgba(0,0,0,0.38)] transition duration-300 hover:-translate-y-1 hover:border-cyan-300/40 hover:shadow-[0_18px_40px_rgba(0,0,0,0.55)]"
               >
