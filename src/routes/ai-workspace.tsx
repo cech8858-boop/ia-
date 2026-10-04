@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, AudioLines, Bell, Box, Check, Compass, Download, FolderPlus, GalleryHorizontal, Heart, History, Image as ImageIcon, LoaderCircle, MessageSquare, Play, Save, Search, Sparkles, Star, SlidersHorizontal, Upload, UserCircle, Video, WandSparkles, X, Zap } from "lucide-react";
@@ -6,9 +6,6 @@ import { FAL_TOOLS, pollFalTool, runFalTool } from "@/lib/fal.functions";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/ai-workspace")({
-  beforeLoad: () => {
-    throw redirect({ to: "/ai-hub" });
-  },
   head: () => ({ meta: [{ title: "AI Workspace — Creative AI" }, { name: "description", content: "AI creation workspace powered by FAL." }] }),
   component: AiWorkspacePage,
 });
@@ -158,6 +155,11 @@ function AiWorkspacePage() {
     setModelSearch("");
     window.location.assign(routeForModel(id));
   };
+
+  if (typeof window !== "undefined") {
+    window.location.replace("/ai-hub");
+    return null;
+  }
 
   return <main className="min-h-screen overflow-x-hidden bg-[#05060a] text-white">
     <div className="mx-auto min-h-screen max-w-[1500px] px-4 pb-28 pt-4 sm:px-6 lg:px-8 lg:pb-10">
