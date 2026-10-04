@@ -39,9 +39,9 @@ function AiWorkspacePage() {
   const [beforeUrl, setBeforeUrl] = useState<string>();
   const [afterUrl, setAfterUrl] = useState<string>();
   const [folderName, setFolderName] = useState("");
-  const [modelSearchOpen, setModelSearchOpen] = useState(false);
+  const [modelSearchOpen, setModelSearchOpen] = useState(true);
   const [modelSearch, setModelSearch] = useState("");
-  const [modelSearchTab, setModelSearchTab] = useState<"All" | "Models" | "Products" | "Characters" | "Community" | "Apps" | "Originals">("Models");
+  const [modelSearchTab, setModelSearchTab] = useState<"All" | "Models" | "Products" | "Characters" | "Community" | "Apps" | "Originals">("All");
   const [modelSearchCategory, setModelSearchCategory] = useState<Category>("Image");
   const fileRef = useRef<HTMLInputElement>(null);
   const run = useServerFn(runFalTool);
