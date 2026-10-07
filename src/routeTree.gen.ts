@@ -29,6 +29,7 @@ import { Route as MultiSceneRouteImport } from './routes/multi-scene'
 import { Route as PaymentsRouteImport } from './routes/payments'
 import { Route as VoiceRouteImport } from './routes/voice'
 import { Route as Wan22RouteImport } from './routes/wan-2-2'
+import { Route as ApiFalUploadRouteImport } from './routes/api/fal/upload'
 import { Route as ApiPublicVideoProxyRouteImport } from './routes/api/public/video-proxy'
 
 const IndexRoute = IndexRouteImport.update({
@@ -131,6 +132,11 @@ const Wan22Route = Wan22RouteImport.update({
   path: '/wan-2-2',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiFalUploadRoute = ApiFalUploadRouteImport.update({
+  id: '/api/fal/upload',
+  path: '/api/fal/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicVideoProxyRoute = ApiPublicVideoProxyRouteImport.update({
   id: '/api/public/video-proxy',
   path: '/api/public/video-proxy',
@@ -158,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/payments': typeof PaymentsRoute
   '/voice': typeof VoiceRoute
   '/wan-2-2': typeof Wan22Route
+  '/api/fal/upload': typeof ApiFalUploadRoute
   '/api/public/video-proxy': typeof ApiPublicVideoProxyRoute
 }
 export interface FileRoutesByTo {
@@ -181,6 +188,7 @@ export interface FileRoutesByTo {
   '/payments': typeof PaymentsRoute
   '/voice': typeof VoiceRoute
   '/wan-2-2': typeof Wan22Route
+  '/api/fal/upload': typeof ApiFalUploadRoute
   '/api/public/video-proxy': typeof ApiPublicVideoProxyRoute
 }
 export interface FileRoutesById {
@@ -205,6 +213,7 @@ export interface FileRoutesById {
   '/payments': typeof PaymentsRoute
   '/voice': typeof VoiceRoute
   '/wan-2-2': typeof Wan22Route
+  '/api/fal/upload': typeof ApiFalUploadRoute
   '/api/public/video-proxy': typeof ApiPublicVideoProxyRoute
 }
 export interface FileRouteTypes {
@@ -230,6 +239,7 @@ export interface FileRouteTypes {
     | '/payments'
     | '/voice'
     | '/wan-2-2'
+    | '/api/fal/upload'
     | '/api/public/video-proxy'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -253,6 +263,7 @@ export interface FileRouteTypes {
     | '/payments'
     | '/voice'
     | '/wan-2-2'
+    | '/api/fal/upload'
     | '/api/public/video-proxy'
   id:
     | '__root__'
@@ -276,6 +287,7 @@ export interface FileRouteTypes {
     | '/payments'
     | '/voice'
     | '/wan-2-2'
+    | '/api/fal/upload'
     | '/api/public/video-proxy'
   fileRoutesById: FileRoutesById
 }
@@ -300,6 +312,7 @@ export interface RootRouteChildren {
   PaymentsRoute: typeof PaymentsRoute
   VoiceRoute: typeof VoiceRoute
   Wan22Route: typeof Wan22Route
+  ApiFalUploadRoute: typeof ApiFalUploadRoute
   ApiPublicVideoProxyRoute: typeof ApiPublicVideoProxyRoute
 }
 
@@ -445,6 +458,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Wan22RouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/fal/upload': {
+      id: '/api/fal/upload'
+      path: '/api/fal/upload'
+      fullPath: '/api/fal/upload'
+      preLoaderRoute: typeof ApiFalUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/video-proxy': {
       id: '/api/public/video-proxy'
       path: '/api/public/video-proxy'
@@ -476,6 +496,7 @@ const rootRouteChildren: RootRouteChildren = {
   PaymentsRoute: PaymentsRoute,
   VoiceRoute: VoiceRoute,
   Wan22Route: Wan22Route,
+  ApiFalUploadRoute: ApiFalUploadRoute,
   ApiPublicVideoProxyRoute: ApiPublicVideoProxyRoute,
 }
 export const routeTree = rootRouteImport

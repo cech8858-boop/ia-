@@ -21,12 +21,13 @@ const write = (key: string, value: unknown) => localStorage.setItem(key, JSON.st
 
 function AiWorkspacePage() {
   const [category, setCategory] = useState<Category>("All");
-  const [active, setActive] = useState(FAL_TOOLS[0].id);
+  const [active, setActive] = useState("image-generator");
   const [prompt, setPrompt] = useState("");
   const [fileUrl, setFileUrl] = useState<string>();
   const [fileName, setFileName] = useState<string>();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [variants, setVariants] = useState(1);
   const [aspectRatio, setAspectRatio] = useState<"16:9" | "9:16">("16:9");
   const [results, setResults] = useState<{ url?: string | null; id: string }[]>([]);
@@ -62,16 +63,36 @@ function AiWorkspacePage() {
     setError(null);
     setFileUrl(undefined);
     setFileName(undefined);
-    const path = `uploads/workspace-${Date.now()}-${file.name.replace(/[^\w.-]/g, "_")}`;
+    if (!file.type.startsWith("image/") && !file.type.startsWith("video/") && !file.type.startsWith("audio/")) {
+      setError("Format non pris en charge. Choisis une image, une vidéo ou un audio.");
+      return;
+    }
+    if (file.size > 4 * 1024 * 1024) {
+      setError("Le fichier doit faire 4 Mo maximum.");
+      return;
+    }
+    setUploading(true);
     try {
-      const up = await supabase.storage.from("character-swap").upload(path, file, { contentType: file.type || "application/octet-stream", upsert: true });
-      if (up.error) { setError(`Échec de l'envoi : ${up.error.message}`); return; }
-      const signed = await supabase.storage.from("character-swap").createSignedUrl(path, 3600);
-      if (signed.error || !signed.data?.signedUrl) { setError(`Fichier envoyé, mais URL de référence impossible à créer : ${signed.error?.message ?? "URL absente"}`); return; }
-      setFileUrl(signed.data.signedUrl);
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+      if (!sessionData.session) throw new Error("Connecte-toi pour envoyer un fichier de référence.");
+      const form = new FormData();
+      form.set("file", file);
+      const response = await fetch("/api/fal/upload", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${sessionData.session.access_token}` },
+        body: form,
+      });
+      const result: { url?: string; error?: string } = await response.json().catch(() => ({}));
+      if (!response.ok || !result.url) {
+        throw new Error(result.error || `Échec de l'envoi vers fal.ai (HTTP ${response.status}).`);
+      }
+      setFileUrl(result.url);
       setFileName(file.name);
     } catch (uploadError) {
-      setError(uploadError instanceof Error ? `Échec de l'envoi : ${uploadError.message}` : "Échec de l'envoi du fichier.");
+      setError(uploadError instanceof Error ? uploadError.message : "Échec de l'envoi du fichier.");
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -106,7 +127,13 @@ function AiWorkspacePage() {
     if (!prompt.trim() && !fileUrl) { setError("Ajoute un prompt ou un fichier de référence."); return; }
     setBusy(true); setResults([]);
     try {
-      const payload = { toolId: selected.id, prompt, imageUrl: selected.category === "Image" || selected.category === "3D" || selected.category === "Video" ? fileUrl : undefined, audioUrl: selected.category === "Audio" || selected.id === "lip-sync" || selected.id === "ai-avatar" ? fileUrl : undefined, videoUrl: selected.category === "Video" ? fileUrl : undefined };
+      const payload = {
+        toolId: selected.id,
+        prompt,
+        ...((selected.category === "Image" || selected.category === "3D" || selected.category === "Video") && fileUrl ? { imageUrl: fileUrl } : {}),
+        ...((selected.category === "Audio" || selected.id === "lip-sync" || selected.id === "ai-avatar") && fileUrl ? { audioUrl: fileUrl } : {}),
+        ...(selected.category === "Video" && fileUrl ? { videoUrl: fileUrl } : {}),
+      };
       const jobs = await Promise.all(Array.from({ length: variants }, () => run({ data: payload })));
       const completed = await Promise.all(jobs.map(async (job) => job.status === "completed" ? job.url : job.status === "queued" ? pollOne(job.requestId, job.model) : Promise.reject(new Error(job.message))));
       const created = completed.map((url) => ({ id: crypto.randomUUID(), url }));
@@ -222,9 +249,9 @@ function AiWorkspacePage() {
                   <div className="flex items-center rounded-full bg-[#232730] p-1"><button onClick={() => setAspectRatio("16:9")} className={`flex-1 rounded-full px-3 py-2 text-[10px] ${aspectRatio === "16:9" ? "bg-[#454a55] text-white" : "text-white/40"}`}>▭ 16:9</button><button onClick={() => setAspectRatio("9:16")} className={`flex-1 rounded-full px-3 py-2 text-[10px] ${aspectRatio === "9:16" ? "bg-[#454a55] text-white" : "text-white/40"}`}>▯ 9:16</button></div>
                 </div>
                 <div className="mt-2 flex items-center justify-between gap-2 rounded-full bg-[#232730] p-1"><span className="px-3 text-[9px] text-white/30">Variantes</span>{[1,4,8].map(n=><button key={n} onClick={()=>setVariants(n)} className={`rounded-full px-3 py-1.5 text-[10px] font-semibold ${variants===n?"bg-white text-black":"text-white/45"}`}>{n}</button>)}</div>
-                <button onClick={() => fileRef.current?.click()} className="mt-3 flex min-h-[110px] w-full flex-col items-center justify-center rounded-[1.5rem] border border-dashed border-white/20 bg-[#10131a] text-center hover:border-violet-400/40"><Upload className="size-7 text-white/35" /><span className="mt-2 text-xs font-bold uppercase tracking-wide text-white/75">{selected.category === "Video" ? "Télécharger une vidéo ou image" : selected.category === "Audio" ? "Télécharger un audio" : selected.category === "3D" ? "Télécharger une image de référence" : "Télécharger une image"}</span><span className="mt-1 text-[10px] text-white/30">Optionnel · fichier de référence</span>{fileName && <span className="mt-2 rounded-full bg-white/10 px-3 py-1 text-[9px] text-white/60">{fileName.slice(0, 38)} <X className="ml-1 inline size-3" /></span>}</button>
+                <button disabled={uploading} onClick={() => fileRef.current?.click()} className="mt-3 flex min-h-[110px] w-full flex-col items-center justify-center rounded-[1.5rem] border border-dashed border-white/20 bg-[#10131a] text-center hover:border-violet-400/40 disabled:opacity-60">{uploading ? <LoaderCircle className="size-7 animate-spin text-violet-300" /> : <Upload className="size-7 text-white/35" />}<span className="mt-2 text-xs font-bold uppercase tracking-wide text-white/75">{uploading ? "Envoi vers fal.ai…" : selected.category === "Video" ? "Télécharger une vidéo ou image" : selected.category === "Audio" ? "Télécharger un audio" : selected.category === "3D" ? "Télécharger une image de référence" : "Télécharger une image"}</span><span className="mt-1 text-[10px] text-white/30">Optionnel · envoyé directement sur fal.ai (4 Mo max)</span>{fileName && <span className="mt-2 rounded-full bg-white/10 px-3 py-1 text-[9px] text-white/60">{fileName.slice(0, 38)} <X className="ml-1 inline size-3" /></span>}</button>
                 <input ref={fileRef} type="file" className="hidden" onChange={e => upload(e.target.files?.[0])} />
-                <div className="mt-4 flex items-center gap-3"><div className="min-w-[60px]"><p className="text-2xl font-black leading-none">25</p><p className="text-xs text-white/35">crédits</p></div><button disabled={busy} onClick={generate} className="flex min-h-14 flex-1 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-violet-600 via-fuchsia-500 to-blue-500 px-5 text-base font-bold shadow-xl shadow-violet-950/30 disabled:opacity-50 sm:text-lg">{busy ? <LoaderCircle className="size-5 animate-spin" /> : <Zap className="size-5 fill-current" />}{busy ? "Génération…" : `Générer${variants > 1 ? ` ×${variants}` : ""}`}</button></div>
+                <div className="mt-4 flex items-center gap-3"><div className="min-w-[60px]"><p className="text-2xl font-black leading-none">25</p><p className="text-xs text-white/35">crédits</p></div><button disabled={busy || uploading} onClick={generate} className="flex min-h-14 flex-1 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-violet-600 via-fuchsia-500 to-blue-500 px-5 text-base font-bold shadow-xl shadow-violet-950/30 disabled:opacity-50 sm:text-lg">{busy ? <LoaderCircle className="size-5 animate-spin" /> : <Zap className="size-5 fill-current" />}{busy ? "Génération…" : `Générer${variants > 1 ? ` ×${variants}` : ""}`}</button></div>
               </div>
               {error && <p className="mt-4 rounded-2xl border border-red-400/20 bg-red-400/10 p-3 text-xs text-red-200">{error}</p>}
               <div className="mt-4 flex flex-wrap gap-2 text-[10px] text-white/25"><span>{selectorNote}</span><span>•</span><span>{selected.model}</span><span>•</span><span>Format {aspectRatio}</span></div>

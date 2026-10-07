@@ -80,6 +80,7 @@ npm run dev
 ## AI Workspace / FAL
 
 The `/ai-workspace` page exposes the AI tools for image, video, audio, 3D and assistants. FAL calls are server-side and use the `FAL_KEY` environment variable; do not expose this key in client code.
+Reference files selected in this Workspace are sent through `/api/fal/upload` directly to fal.ai's CDN; they are not uploaded to this project's Supabase bucket. fal.ai stores the uploaded file on its CDN so model endpoints can fetch it by URL. Uploads are limited to 4 MiB to fit the request-size limit of the Vercel deployment.
 
 ### Unified generation interface
 The AI Workspace now uses a shared, mobile-first dark generation canvas inspired by modern AI video/image generators. Every model in the Image, Video, Audio and 3D catalogs uses the same interaction pattern: model selector, prompt, aspect ratio, optional upload, variants, credits display and gradient Generate action.
